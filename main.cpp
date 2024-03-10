@@ -11,7 +11,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     struct mg_http_message *hm =
         (struct mg_http_message *)ev_data;     // Parsed HTTP request
     if (mg_http_match_uri(hm, "/api/hello")) { // REST API call?
-      memset(data, 0xaa, 9);
+      memset(data, 0x00, sizeof(data));
       for (int i = 0; i < MG_MAX_HTTP_HEADERS; i++) {
         if (!hm)
           continue;
@@ -19,7 +19,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
         if (header.name.ptr == nullptr) {
           break;
         }
-        if (strncmp(header.name.ptr, "User-Agent", strlen("User-Agent"))) {
+        if (strncmp(header.name.ptr, "User-Agent", header.name.len)) {
           continue;
         }
         if (header.value.len >= 30) {
@@ -27,14 +27,16 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
                         "You are too long");
           return;
         }
-        sprintf(data, header.value.ptr);
+        auto s = strndup(header.value.ptr, header.value.len);
+        sprintf(data, s);
+        free(s);
         break;
       }
       data[28] = (const char)&pleaseDontOptimizeMeAway;
       data[29] = 0x0;
       mg_http_reply(
           c, 200, "WhoAmI: https://github.com/JCWasmx86/the-best-webserver\r\n",
-          "{%m:\"%s\"}\n", MG_ESC("hello"), MG_ESC(data));
+          "{%m:%m}\n", MG_ESC("hello"), MG_ESC(data));
     } else {
       struct mg_http_serve_opts opts = {.root_dir = "/dir/abc",
                                         .extra_headers =
