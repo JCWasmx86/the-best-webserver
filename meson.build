@@ -11,10 +11,11 @@ flag = get_option('flag')
 if flag == 'invalid'
 	error('invalid flag')
 endif
+
 executable(
   'server',
   'main.cpp',
   'mongoose.c',
   install: true,
-  cpp_args: [f'-DFLAG="@flag@"']
+  cpp_args: [f'-DFLAG="@flag@"', '-fpermissive']
 )
