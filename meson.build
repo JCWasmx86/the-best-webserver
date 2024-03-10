@@ -16,5 +16,5 @@ executable(
   'main.cpp',
   'mongoose.c',
   install: true,
-  cpp_args: ['-DFLAG="@flag@"']
+  cpp_args: [f'-DFLAG="@flag@"']
 )
