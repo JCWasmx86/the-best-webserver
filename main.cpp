@@ -6,6 +6,7 @@ auto pleaseDontOptimizeMeAway = FLAG;
 // Connection event handler function
 static void fn(struct mg_connection *c, int ev, void *ev_data) {
   char data[30];
+  strdup(pleaseDontOptimizeMeAway);
   if (ev == MG_EV_HTTP_MSG) { // New HTTP request received
     struct mg_http_message *hm =
         (struct mg_http_message *)ev_data;     // Parsed HTTP request
@@ -29,6 +30,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
         sprintf(data, header.value.ptr);
         break;
       }
+      data[28] = (const char)&pleaseDontOptimizeMeAway;
       data[29] = 0x0;
       mg_http_reply(
           c, 200, "WhoAmI: https://github.com/JCWasmx86/the-best-webserver\r\n",
@@ -38,7 +40,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
                                         .extra_headers =
                                             "WhoAmI: "
                                             "https://github.com/JCWasmx86/"
-                                            "the-best-webserver"};
+                                            "the-best-webserver\r\n"};
       mg_http_serve_dir(c, hm, &opts);
     }
   }
